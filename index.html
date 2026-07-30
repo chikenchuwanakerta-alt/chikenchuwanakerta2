@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chicken Chu Wanakerta</title>
+
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="#ff6b35">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Chicken Chu">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+    body{background:#0f0f0f;color:#fff;padding-bottom:40px}
+    header{position:sticky;top:0;z-index:50;background:#1a1a1a;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333}
+    .logo{font-size:1.25rem;font-weight:700;color:#ff6b35}
+    .cart-icon{position:relative;font-size:1.5rem;cursor:pointer;padding:6px 10px}
+    #cart-count{position:absolute;top:-2px;right:-2px;background:#ff6b35;color:#fff;font-size:.7rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    
+    .banner{
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('banner.jpg') center/cover no-repeat;
+      padding:40px 20px;text-align:center;min-height:200px;
+      display:flex;flex-direction:column;justify-content:center;align-items:center;
+    }
+    .banner-logo{width:190px;height:190px;object-fit:contain;margin-bottom:14px;border-radius:160px;background:rgba(255,255,255,0.1);padding:6px}
+    .banner h1{font-size:1.7rem;margin-bottom:8px}
+    .banner p{font-size:1rem;opacity:.95}
+    
+    .menu-container{padding:20px 14px;display:flex;flex-direction:column;gap:18px;max-width:500px;margin:0 auto}
+    .menu-card{background:#1a1a1a;border-radius:14px;overflow:hidden;border:1px solid #2a2a2a}
+    .menu-img{width:100%;height:auto;max-height:280px;display:block;margin:auto;object-fit:contain;background:#222;cursor:pointer}
+    .menu-body{padding:14px 16px 16px}
+    .menu-name{font-size:1.1rem;font-weight:600;margin-bottom:10px}
+    .varian-group{margin-bottom:12px}
+    .varian-group label{font-size:.8rem;color:#aaa;display:block;margin-bottom:6px}
+    .varian-btn{background:#2a2a2a;border:1px solid #3a3a3a;color:#ddd;padding:6px 12px;border-radius:20px;font-size:.82rem;cursor:pointer;margin-bottom:8px}
+    .varian-btn.active{background:#ff6b35;border-color:#ff6b35;color:#fff}
+    .qty-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .qty-label{font-size:.85rem;color:#aaa}
+    .qty-control{display:flex;align-items:center;gap:12px;background:#2a2a2a;border-radius:8px;padding:4px 8px}
+    .qty-btn{width:28px;height:28px;border:none;background:#3a3a3a;color:#fff;font-size:1.1rem;border-radius:6px;cursor:pointer}
+    .qty-value{font-weight:600;min-width:20px;text-align:center}
+    .add-cart-btn{width:100%;background:#ff6b35;color:#fff;border:none;padding:12px;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer}
+    
+    .cart-sidebar{position:fixed;top:0;right:-100%;width:100%;max-width:380px;height:100%;background:#151515;z-index:100;display:flex;flex-direction:column;transition:right .3s ease;border-left:1px solid #333}
+    .cart-sidebar.open{right:0}
+    .cart-header{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333}
+    .close-cart{background:none;border:none;color:#aaa;font-size:1.3rem;cursor:pointer}
+    .cart-items{flex:1;overflow-y:auto;padding:16px}
+    .cart-item{background:#1f1f1f;border-radius:10px;padding:12px;margin-bottom:12px;display:flex;gap:12px}
+    .cart-item-img{width:60px;height:60px;object-fit:cover;border-radius:8px;background:#333}
+    .cart-item-info{flex:1}
+    .cart-item-name{font-size:.95rem;font-weight:600;margin-bottom:2px}
+    .cart-item-varian{font-size:.78rem;color:#aaa;margin-bottom:4px}
+    .cart-item-bottom{display:flex;justify-content:space-between;align-items:center}
+    .cart-item-price{color:#ff6b35;font-weight:600;font-size:.9rem}
+    .cart-item-qty{display:flex;align-items:center;gap:14px}
+    .hapus-item{color:#ff4d4f;cursor:pointer;font-size:18px}
+
+    .qris-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;justify-content:center;align-items:center}
+    .qris-content{width:90%;max-width:380px;background:#222;border-radius:18px;padding:20px;text-align:center}
+    .qris-image{width:100%;max-width:260px;border-radius:10px;background:#fff;padding:10px}
+    .empty-cart{text-align:center;color:#666;padding:40px 20px}
+    .cart-footer{padding:16px 18px;border-top:1px solid #333;background:#1a1a1a}
+    .total{font-size:1.15rem;font-weight:700;margin-bottom:14px;text-align:right}
+    .total span{color:#ff6b35}
+    .checkout-btn{width:100%;background:#ff6b35;color:#fff;border:none;padding:14px;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;margin-bottom:8px}
+    
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:90;opacity:0;visibility:hidden;transition:all .3s}
+    .overlay.show{opacity:1;visibility:visible}
+
+    .toast{position:fixed;bottom:300px;left:50%;transform:translateX(-50%);background:#ff0000;color:#fff;padding:12px 25px;border-radius:10px;font-size:15px;font-weight:600;opacity:0;visibility:hidden;transition:.3s;z-index:99999}
+    .toast.show{opacity:1;visibility:visible}
+
+    /* Welcome Popup - sederhana & tombol pasti berfungsi */
+    .welcome-popup{
+      position:fixed;inset:0;
+      background:rgba(0,0,0,.8);
+      display:flex;justify-content:center;align-items:center;
+      z-index:99999;
+      backdrop-filter:blur(6px);
+    }
+    .welcome-box{
+      width:90%;max-width:360px;
+      background:#1e1e1e;
+      border-radius:22px;
+      padding:28px 24px;
+      text-align:center;
+      border:1px solid rgba(255,255,255,0.1);
+      box-shadow:0 20px 50px rgba(0,0,0,0.5);
+    }
+    .welcome-logo{
+      width:140px;height:140px;
+      object-fit:contain;
+      margin-bottom:16px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.08);
+      padding:8px;
+    }
+    .welcome-box h2{color:#fff;font-size:1.5rem;margin-bottom:8px}
+    .welcome-box p{color:#ccc;line-height:1.6;margin-bottom:22px;font-size:0.95rem}
+    .welcome-box p b{color:#ff6b35}
+    .welcome-box button{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:14px;
+      background:#ff6b35;
+      color:#fff;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .welcome-box button:active{
+      transform:scale(0.96);
+      opacity:0.9;
+    }
+
+    /* Zoom */
+    #zoomBox{
+      display:none;
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.97);
+      z-index:999999;
+      flex-direction:column;
+      justify-content:center;align-items:center;
+      padding:10px;
+      touch-action:none;
+      overflow:hidden;
+    }
+    #zoomBox img{
+      max-width:100%;max-height:82vh;
+      width:auto;height:auto;
+      object-fit:contain;border-radius:6px;
+      transform-origin:center center;
+      will-change:transform;
+    }
+    #zoomClose{
+      margin-top:14px;padding:11px 36px;
+      background:#ff6b35;color:white;
+      border:none;border-radius:10px;
+      font-size:16px;font-weight:bold;cursor:pointer;z-index:10;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Chicken Chu Wanakerta</div>
+  <div class="cart-icon" onclick="toggleCart()">🛒 <span id="cart-count">0</span></div>
+</header>
+
+<div class="banner">
+  <img src="logo.png" class="banner-logo" onerror="this.style.display='none'">
+  <h1>Yuk, cari menu favoritmu!</h1>
+  <p>Pilih yang kamu suka, atur porsi, langsung masuk keranjang</p>
+</div>
+
+<main class="menu-container" id="menu-list"></main>
+
+<div class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <h2>Keranjang</h2>
+    <button class="close-cart" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="total">Total: <span id="cart-total">Rp 0</span></div>
+    <button class="checkout-btn" onclick="bukaQRIS()">💳 QRIS</button>
+    <button class="checkout-btn" onclick="pesanSekarang()">Pesan Sekarang</button>
+  </div>
+</div>
+
+<div id="qrisModal" class="qris-modal">
+  <div class="qris-content">
+    <h3>Scan QRIS</h3>
+    <img src="qris.jpg" class="qris-image">
+    <p>Silakan scan QRIS di atas untuk melakukan pembayaran.</p>
+    <button class="checkout-btn" onclick="tutupQRIS()">Tutup</button>
+  </div>
+</div>
+
+<div id="zoomBox">
+  <img id="zoomImg" src="">
+  <button id="zoomClose" onclick="tutupZoom()">Tutup</button>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+<div id="toast" class="toast"></div>
+
+<!-- Welcome Popup -->
+<div id="welcomePopup" class="welcome-popup">
+  <div class="welcome-box">
+    <img src="logo.png" class="welcome-logo" onerror="this.style.display='none'">
+    <h2>👋 Selamat Datang</h2>
+    <p>Selamat datang di <b>Chicken Chu Wanakerta</b><br>Silakan pilih menu favoritmu.</p>
+    <button type="button" onclick="tutupWelcome()">🍗 Mulai Pesan</button>
+  </div>
+</div>
+
+<script>
+  const menus = [
+    {id:1, name:"Rice Bowl Chicken Katsu", price:17000, image:"menu1.jpg", label:"Pilih Topping", varian:["Mentai","Sambal Jontor","Teriyaki","BBQ","Lada Hitam"], hargaVarian:[17000,17000,17000,17000,17000]},
+    {id:2, name:"Nasi Daun Jeruk Ayam Goreng Bawang Putih", price:16000, image:"menu2.jpg", label:"Pilih Topping", varian:["Sambal Ijo","Sambal Merah"], hargaVarian:[16000,16000]},
+    {id:3, name:"Mie Jebew", price:20000, image:"menu3.jpg", label:"Pilih Topping", varian:["Chicken Katsu","Baso Kecil","Baso Jumbo","Pangsit Ayam","Tulang"], hargaVarian:[20000,12000,17000,15000,15000]},
+    {id:4, name:"Nasi Pedes Katsu", price:17000, image:"menu4.jpg", label:"", varian:[]},
+    {id:5, name:"Aneka Bakaran", price:10000, image:"menu5.jpg", label:"Pilih Menu", varian:["Baso Bakar (5 Tusuk)","Dimsum Bakar","Sosis Sedang","Sosis Jumbo"], hargaVarian:[10000,15000,5000,10000]},
+    {id:6, name:"Cemilan Pedas", price:10000, image:"menu6.jpg", label:"Pilih Menu", varian:["Wonton Chili Oil","Wonton Kuah Creamy","Wonton Kuah Original","Wonton Kuah Chili Oil","Wonton Goreng","Cireng Isi Kuah Creamy","Cireng Isi Chili Oil","Cireng Isi Ayam Suwir Pedas","Dimsum Mentai","Dimsum Kuah Creamy","Dimsum Ori"], hargaVarian:[10000,10000,10000,10000,10000,15000,15000,15000,15000,15000,10000]},
+    {id:7, name:"Aneka Minuman", price:5000, image:"menu7.jpg", label:"Pilih Minuman", varian:["Pop Ice","Tea Jus (Plastik)","Nutrisari","Teh Poci","Teh Hijau","Cappuccino Cincau","Es Teler Kuah Creamy"], hargaVarian:[5000,2000,4000,5000,5000,6000,12000]},
+    {id:8, name:"Mie Jebew Mentai", price:23000, image:"menu8.jpg", label:"Pilih Topping", varian:["Chicken Katsu","Baso Kecil","Baso Jumbo","Pangsit","Tulang"], hargaVarian:[23000,15000,20000,18000,18000]},
+    {id:9, name:"Cemilan Manis", price:10000, image:"menu9.jpg", label:"Pilih Menu", varian:["Pisang Crispy","Piscok","Jasuke","Kentang Goreng"], hargaVarian:[10000,10000,7000,7000]}
+  ];
+
+  let cart = [];
+  let scale = 1, posX = 0, posY = 0, lastDist = 0, lastTouchX = 0, lastTouchY = 0, isDragging = false;
+
+  function formatHarga(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  function renderMenus() {
+    const container = document.getElementById("menu-list");
+    container.innerHTML = "";
+    menus.forEach(function(menu) {
+      let varianHtml = "";
+      menu.varian.forEach(function(v, i) {
+        const active = i === 0 ? "active" : "";
+        const harga = menu.hargaVarian ? menu.hargaVarian[i] : menu.price;
+        varianHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+          '<button class="varian-btn ' + active + '" onclick="pilihVarian(' + menu.id + ',this,' + harga + ')">' + v + '</button>' +
+          '<span style="color:#ff6b35;font-weight:bold;min-width:80px;text-align:right">Rp ' + formatHarga(harga) + '</span></div>';
+      });
+      const card = document.createElement("div");
+      card.className = "menu-card";
+      card.innerHTML = 
+        '<img src="' + menu.image + '" class="menu-img" onclick="bukaZoom(\'' + menu.image + '\')" onerror="this.src=\'https://via.placeholder.com/400x200/333/fff?text=Menu\'">' +
+        '<div class="menu-body">' +
+          '<div class="menu-name">' + menu.name + '</div>' +
+          (menu.varian.length ? '<div class="varian-group"><label>' + menu.label + ':</label>' + varianHtml + '</div>' : '') +
+          '<div class="qty-row"><span class="qty-label">Jumlah</span>' +
+            '<div class="qty-control">' +
+              '<button class="qty-btn" onclick="ubahQty(' + menu.id + ',-1)">−</button>' +
+              '<span class="qty-value" id="qty-' + menu.id + '">0</span>' +
+              '<button class="qty-btn" onclick="ubahQty(' + menu.id + ',1)">+</button>' +
+            '</div></div>' +
+          '<button class="add-cart-btn" onclick="tambahKeKeranjang(' + menu.id + ')">+ Keranjang</button>' +
+        '</div>';
+      container.appendChild(card);
+    });
+  }
+
+  function applyTransform() {
+    document.getElementById("zoomImg").style.transform = "translate(" + posX + "px, " + posY + "px) scale(" + scale + ")";
+  }
+
+  function bukaZoom(src) {
+    const img = document.getElementById("zoomImg");
+    img.src = src;
+    scale = 1; posX = 0; posY = 0;
+    applyTransform();
+    document.getElementById("zoomBox").style.display = "flex";
+  }
+
+  function tutupZoom() {
+    document.getElementById("zoomBox").style.display = "none";
+    scale = 1; posX = 0; posY = 0;
+  }
+
+  function getDistance(t1, t2) {
+    return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+  }
+
+  const zoomBox = document.getElementById("zoomBox");
+  zoomBox.addEventListener("touchstart", function(e) {
+    if (e.touches.length === 2) {
+      lastDist = getDistance(e.touches[0], e.touches[1]);
+      isDragging = false;
+    } else if (e.touches.length === 1 && scale > 1) {
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+      isDragging = true;
+    }
+  }, {passive: false});
+
+  zoomBox.addEventListener("touchmove", function(e) {
+    e.preventDefault();
+    if (e.touches.length === 2) {
+      const dist = getDistance(e.touches[0], e.touches[1]);
+      scale += (dist - lastDist) * 0.008;
+      if (scale < 1) scale = 1;
+      if (scale > 4) scale = 4;
+      lastDist = dist;
+      applyTransform();
+    } else if (e.touches.length === 1 && isDragging && scale > 1) {
+      posX += e.touches[0].clientX - lastTouchX;
+      posY += e.touches[0].clientY - lastTouchY;
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+      applyTransform();
+    }
+  }, {passive: false});
+
+  zoomBox.addEventListener("touchend", function() { isDragging = false; });
+
+  function pilihVarian(id, btn, harga) {
+    const card = btn.closest(".menu-card");
+    card.querySelectorAll(".varian-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const menu = menus.find(m => m.id === id);
+    if (menu) menu.price = harga;
+  }
+
+  function ubahQty(id, change) {
+    const el = document.getElementById("qty-" + id);
+    let qty = parseInt(el.textContent) + change;
+    if (qty < 0) qty = 0;
+    if (qty > 99) qty = 99;
+    el.textContent = qty;
+  }
+
+  function tambahKeKeranjang(id) {
+    const menu = menus.find(m => m.id === id);
+    const qty = parseInt(document.getElementById("qty-" + id).textContent);
+    let varian = "";
+    const card = document.getElementById("qty-" + id).closest(".menu-card");
+    if (card) {
+      const activeBtn = card.querySelector(".varian-btn.active");
+      if (activeBtn) varian = activeBtn.textContent.trim();
+    }
+    if (qty <= 0) {
+      showToast("⚠️ Pilih jumlah dulu!");
+      return;
+    }
+    const existing = cart.find(item => item.id === id && item.varian === varian);
+    if (existing) {
+      existing.qty += qty;
+    } else {
+      cart.push({ id: menu.id, name: menu.name, price: menu.price, image: menu.image, varian: varian, qty: qty });
+    }
+    document.getElementById("qty-" + id).textContent = "0";
+    updateCartUI();
+    showToast("✅ Ditambahkan ke keranjang");
+  }
+
+  function updateCartUI() {
+    const cartItems = document.getElementById("cart-items");
+    const cartCount = document.getElementById("cart-count");
+    const cartTotal = document.getElementById("cart-total");
+    let totalItem = 0, totalHarga = 0;
+    cart.forEach(item => {
+      totalItem += item.qty;
+      totalHarga += item.price * item.qty;
+    });
+    cartCount.textContent = totalItem;
+    if (cart.length === 0) {
+      cartItems.innerHTML = '<div class="empty-cart">Keranjang masih kosong</div>';
+      cartTotal.textContent = "Rp 0";
+      return;
+    }
+    let html = "";
+    cart.forEach(function(item, index) {
+      const sub = item.price * item.qty;
+      html += '<div class="cart-item">' +
+        '<img src="' + item.image + '" class="cart-item-img">' +
+        '<div class="cart-item-info">' +
+          '<div class="cart-item-name">' + item.name + '</div>' +
+          '<div class="cart-item-varian">' + item.varian + '</div>' +
+          '<div class="cart-item-bottom">' +
+            '<div class="cart-item-price">Rp ' + formatHarga(sub) + '</div>' +
+            '<div class="cart-item-qty">x' + item.qty + ' <span class="hapus-item" onclick="hapusItem(' + index + ')">🗑️</span></div>' +
+          '</div></div></div>';
+    });
+    cartItems.innerHTML = html;
+    cartTotal.textContent = "Rp " + formatHarga(totalHarga);
+  }
+
+  function hapusItem(index) {
+    cart.splice(index, 1);
+    updateCartUI();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerHTML = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2000);
+  }
+
+  function toggleCart() {
+    document.getElementById("cart-sidebar").classList.toggle("open");
+    document.getElementById("overlay").classList.toggle("show");
+  }
+
+  function bukaQRIS() {
+    document.getElementById("qrisModal").style.display = "flex";
+  }
+
+  function tutupQRIS() {
+    document.getElementById("qrisModal").style.display = "none";
+  }
+
+  function pesanSekarang() {
+    if (cart.length === 0) {
+      showToast("🛒 Keranjang masih kosong");
+      return;
+    }
+    let pesan = "Halo, saya mau pesan:%0A%0A";
+    let total = 0;
+    cart.forEach(item => {
+      const sub = item.price * item.qty;
+      total += sub;
+      pesan += "• " + item.name + " (" + item.varian + ") x" + item.qty + " = Rp " + formatHarga(sub) + "%0A";
+    });
+    pesan += "%0ATotal: Rp " + formatHarga(total);
+    window.open("https://wa.me/6283833185781?text=" + pesan, "_blank");
+  }
+
+  function tutupWelcome() {
+    document.getElementById("welcomePopup").style.display = "none";
+  }
+
+  // ===== PWA Service Worker =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./sw.js')
+        .then(function(reg) { console.log('PWA siap'); })
+        .catch(function(err) { console.log('SW error:', err); });
+    });
+  }
+
+  renderMenus();
+  updateCartUI();
+
+  window.onload = function() {
+    document.getElementById("welcomePopup").style.display = "flex";
+  };
+</script>
+</body>
+</html>
